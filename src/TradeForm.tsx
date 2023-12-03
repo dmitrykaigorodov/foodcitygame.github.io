@@ -4,8 +4,8 @@ import "./TradeForm.css"
 import { pricing } from "./pricing"
 
 
-export const TradeLineItem = ({ icon, buy, owned, foodIndex = 0, title, pricings, day = 1, color, qty = 10 }) => {
-  let [priceBuy, priceSell] = pricings[foodIndex](day)
+export const TradeLineItem = ({ icon, buy, sell, owned, foodIndex = 0, title, pricings, day = 1, color, qty = 10 }) => {
+  let [priceSell, priceBuy] = pricings[foodIndex](day)
   priceBuy = priceBuy.toFixed(2)
   priceSell = priceSell.toFixed(2)
   const total = (owned.foods[foodIndex] * priceSell).toFixed(2)
@@ -27,7 +27,7 @@ export const TradeLineItem = ({ icon, buy, owned, foodIndex = 0, title, pricings
       <span className="font-monospace">
         ${priceSell}
       </span>
-      <span style={{ marginLeft: 4 }} className="buySellIcon">
+      <span style={{ marginLeft: 4 }} className="buySellIcon" onClick={() => sell(foodIndex)}>
         <LucideMinusCircle />
       </span>
     </td>
@@ -47,6 +47,7 @@ export const TradeLineItem = ({ icon, buy, owned, foodIndex = 0, title, pricings
 export const TradeForm = () => {
   const [day, setDay] = useState(1)
   const [notEnoughMoneyError, setNotEnoughMoneyError] = useState(false)
+  const [cantSellError, setCantSellError] = useState(false)
 
   const pricings = [
     pricing(1.11, 1.25 / 1.11, 3),
@@ -67,7 +68,7 @@ export const TradeForm = () => {
 
   const buy = (foodIndex = 0) => {
     setOwned((owned) => {
-      const newCashAmount = owned.cash - pricings[foodIndex](day)[0]
+      const newCashAmount = owned.cash - pricings[foodIndex](day)[1]
       if (newCashAmount < 0) {
         console.log({ newCashAmount })
         setNotEnoughMoneyError(true)
@@ -77,6 +78,23 @@ export const TradeForm = () => {
       foods[foodIndex]++
 
       console.log({ foodIndex, pricings, pfi: pricings[foodIndex], "foods[foodIndex]": foods[foodIndex] })
+      return {
+        cash: newCashAmount,
+        foods
+      }
+    })
+  }
+
+  const sell = (foodIndex = 0) => {
+    setOwned((owned) => {
+      if (owned.foods[foodIndex] <= 0) {
+        setCantSellError(true)
+        return owned
+      }
+      const newCashAmount = owned.cash + pricings[foodIndex](day)[0]
+      const foods = [...owned.foods]
+      foods[foodIndex]--
+
       return {
         cash: newCashAmount,
         foods
@@ -109,6 +127,7 @@ export const TradeForm = () => {
           day={day}
 
           buy={buy}
+          sell={sell}
           owned={owned}
           foodIndex={0}
         />
@@ -121,6 +140,7 @@ export const TradeForm = () => {
           day={day}
 
           buy={buy}
+          sell={sell}
           owned={owned}
           foodIndex={1}
         />
@@ -133,6 +153,7 @@ export const TradeForm = () => {
           day={day}
 
           buy={buy}
+          sell={sell}
           owned={owned}
           foodIndex={2}
         />
@@ -145,6 +166,7 @@ export const TradeForm = () => {
           day={day}
 
           buy={buy}
+          sell={sell}
           owned={owned}
           foodIndex={3}
         />
@@ -157,6 +179,7 @@ export const TradeForm = () => {
           day={day}
 
           buy={buy}
+          sell={sell}
           owned={owned}
           foodIndex={4}
         />
@@ -169,13 +192,19 @@ export const TradeForm = () => {
           day={day}
 
           buy={buy}
+          sell={sell}
           owned={owned}
           foodIndex={5}
         />
       </tbody>
     </table>
-    {notEnoughMoneyError &&
+    {
+      notEnoughMoneyError &&
       <h1 className="text-danger">Not enought money!</h1>
+    }
+    {
+      cantSellError &&
+      <h1 className="text-warning">Can't sell!</h1>
     }
 
     <h2>Cash: ${owned.cash.toFixed(2)}, Food: $400, Goal: $1,000,000</h2>
