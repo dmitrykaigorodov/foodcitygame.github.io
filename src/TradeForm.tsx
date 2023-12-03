@@ -4,7 +4,7 @@ import "./TradeForm.css"
 import { pricing } from "./pricing"
 
 
-export const TradeLineItem = ({ icon, buy, sell, owned, foodIndex = 0, title, pricings, day = 1, color, qty = 10 }) => {
+export const TradeLineItem = ({ icon, buy, sell, owned, foodIndex = 0, title, pricings, day = 1, color }) => {
   let [priceSell, priceBuy] = pricings[foodIndex](day)
   priceBuy = priceBuy.toFixed(2)
   priceSell = priceSell.toFixed(2)
@@ -57,7 +57,6 @@ export const TradeForm = () => {
     pricing(15, 1.25 / 1.11, 1.3),
     pricing(10, 1.25 / 1.11, 1.2)
   ]
-  const [buyPrice, sellPrice] = pricing(1.11, 1.25 / 1.11, 3)(day)
 
   const [owned, setOwned] = useState({
     cash: 500,

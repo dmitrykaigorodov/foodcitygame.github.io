@@ -1,11 +1,9 @@
 // import "bootstrap/scss/bootstrap.scss";
-import { useState } from 'react';
 import './App.scss';
 import { TradeForm } from './TradeForm';
 import viteLogo from '/burger.gif';
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <div className='font-sans'>

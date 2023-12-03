@@ -11,7 +11,3 @@ export const pricing = (base: number, split: number, yearGrowth: number) => {
     ]
   }
 }
-
-export const icecreamPricing = (day: number) => {
-  return pricing(1.11, 1.25 / 1.11, 3)
-}
