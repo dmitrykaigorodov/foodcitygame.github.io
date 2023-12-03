@@ -1,0 +1,19 @@
+.buySellIcon {
+  color: #64748b;
+  cursor: pointer;
+  transition: color 200ms;
+}
+
+.buySellIcon:hover {
+  color: #2563eb;
+}
+.buySellIcon svg {
+  rotate: -170deg;
+  transition: rotate 200ms;
+}
+.buySellIcon:hover svg{
+  rotate: 0deg;
+}
+tbody tr:hover td {
+  background-color: #f8fafc;
+}

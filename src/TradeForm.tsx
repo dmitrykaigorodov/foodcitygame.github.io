@@ -1,13 +1,14 @@
 import { LucideApple, LucideBanana, LucideBeef, LucideCake, LucideMinusCircle, LucidePizza, LucidePlusCircle, LucidePopsicle } from "lucide-react"
 import { useState } from "react"
+import "./TradeForm.css"
 import { pricing } from "./pricing"
 
 
-
-export const TradeLineItem = ({ icon, buy, owned, foodIndex = 0, title, pricings, day = 1, color, qty = 10, total = 100 }) => {
+export const TradeLineItem = ({ icon, buy, owned, foodIndex = 0, title, pricings, day = 1, color, qty = 10 }) => {
   let [priceBuy, priceSell] = pricings[foodIndex](day)
   priceBuy = priceBuy.toFixed(2)
   priceSell = priceSell.toFixed(2)
+  const total = (owned.foods[foodIndex] * priceSell).toFixed(2)
 
   return <tr>
     <td style={{ color, lineHeight: '24px' }}>
@@ -18,7 +19,7 @@ export const TradeLineItem = ({ icon, buy, owned, foodIndex = 0, title, pricings
       <span className="font-monospace">
         ${priceBuy}
       </span>
-      <span style={{ marginLeft: 4 }} onClick={() => buy(foodIndex)}>
+      <span style={{ marginLeft: 4 }} className="buySellIcon" onClick={() => buy(foodIndex)}>
         <LucidePlusCircle />
       </span>
     </td>
@@ -26,7 +27,7 @@ export const TradeLineItem = ({ icon, buy, owned, foodIndex = 0, title, pricings
       <span className="font-monospace">
         ${priceSell}
       </span>
-      <span style={{ marginLeft: 4 }}>
+      <span style={{ marginLeft: 4 }} className="buySellIcon">
         <LucideMinusCircle />
       </span>
     </td>
@@ -37,7 +38,7 @@ export const TradeLineItem = ({ icon, buy, owned, foodIndex = 0, title, pricings
     </td>
     <td style={{ padding: "10px 0", textAlign: "right" }}>
       <span className="font-monospace">
-        ${owned.foods[foodIndex] * priceSell}
+        ${total}
       </span>
     </td>
   </tr>
@@ -45,14 +46,15 @@ export const TradeLineItem = ({ icon, buy, owned, foodIndex = 0, title, pricings
 
 export const TradeForm = () => {
   const [day, setDay] = useState(1)
+  const [notEnoughMoneyError, setNotEnoughMoneyError] = useState(false)
 
   const pricings = [
     pricing(1.11, 1.25 / 1.11, 3),
     pricing(5, 1.25 / 1.11, -2),
     pricing(.2, 1.25 / 1.11, 1.5),
     pricing(.25, 1.25 / 1.11, 1.3),
-    pricing(4, 1.25 / 1.11, 1.3),
-    pricing(3, 1.25 / 1.11, 1.2)
+    pricing(15, 1.25 / 1.11, 1.3),
+    pricing(10, 1.25 / 1.11, 1.2)
   ]
   const [buyPrice, sellPrice] = pricing(1.11, 1.25 / 1.11, 3)(day)
 
@@ -65,15 +67,24 @@ export const TradeForm = () => {
 
   const buy = (foodIndex = 0) => {
     setOwned((owned) => {
+      const newCashAmount = owned.cash - pricings[foodIndex](day)[0]
+      if (newCashAmount < 0) {
+        console.log({ newCashAmount })
+        setNotEnoughMoneyError(true)
+        return owned
+      }
       const foods = [...owned.foods]
       foods[foodIndex]++
+
       console.log({ foodIndex, pricings, pfi: pricings[foodIndex], "foods[foodIndex]": foods[foodIndex] })
       return {
-        cash: owned.cash - pricings[foodIndex](day)[0],
+        cash: newCashAmount,
         foods
       }
     })
   }
+
+  console.log({ owned })
 
   return <div>
     <table className="table" style={{ color: '#2c3e50' }}>
@@ -163,8 +174,11 @@ export const TradeForm = () => {
         />
       </tbody>
     </table>
+    {notEnoughMoneyError &&
+      <h1 className="text-danger">Not enought money!</h1>
+    }
 
-    <h1>Cash: ${owned.cash.toFixed(2)}, Food: $400, Goal: $1,000,000</h1>
+    <h2>Cash: ${owned.cash.toFixed(2)}, Food: $400, Goal: $1,000,000</h2>
     <button
       className="btn btn-lg btn-primary"
       onClick={() => setDay(day => day + 1)}
